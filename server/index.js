@@ -1,14 +1,65 @@
+const cors = require("cors");
 require("dotenv").config();
 const express = require('express');
 const mongoose = require("mongoose");
 const connectDB = require("./infrastructure/config/database");
 const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+app.use(express.json());
 const PORT = process.env.PORT || 5000;
 
-const authRoutes = require('./interfaces/routes/authRoutes');
-const protect = require("./interfaces/middleware/authMiddleware");
+const http = require("http");
+const { Server } = require("socket.io");
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+  },
+});
+module.exports.io = io;
 
-app.use(express.json());
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  socket.on("setup", (userData) => {
+    socket.join(userData.id);
+    socket.userId = userData.id; // store for later use
+    console.log("User joined personal room:", userData.id);
+  });
+
+  // join chat room
+  socket.on("join chat", (chatId) => {
+    socket.join(chatId);
+    console.log("User joined chat room:", chatId);
+  });
+
+  // typing event
+  socket.on("typing", (chatId) => {
+    socket.to(chatId).emit("typing", {
+      userId: socket.userId,
+    });
+  });
+
+  socket.on("stop typing", (chatId) => {
+    socket.to(chatId).emit("stop typing");
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
+});
+
+const protect = require("./interfaces/middleware/authMiddleware");
+const authRoutes = require('./interfaces/routes/authRoutes');
+const chatRoutes = require('./interfaces/routes/chatRoutes')
+const messageRoutes = require('./interfaces/routes/messageRoutes')
+
 
 app.get("/api/protected", protect, (req, res) => {
   res.json({
@@ -20,6 +71,8 @@ app.get("/api/protected", protect, (req, res) => {
 app.get('/api/data', (req, res) => res.json({ message: 'Here is some data' }));
 
 app.use('/api/auth', authRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/message', messageRoutes)
 
 
 app.get('/', (req, res) => {
@@ -33,7 +86,7 @@ app.get('/', (req, res) => {
 const startServer = async () => {
   await connectDB();
 
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
 };
