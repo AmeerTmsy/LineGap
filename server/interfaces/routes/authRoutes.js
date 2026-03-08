@@ -11,8 +11,11 @@ router.post("/login", (req, res) => {
   AuthController.login(req, res);
 });
 
+router.get("/user", protect,  (req, res) => {
+  AuthController.findAll(req, res);
+});
 router.get("/user/:id", protect,  (req, res) => {
-  AuthController.find(req, res);
+  AuthController.findOne(req, res);
 });
 
 module.exports = router;

@@ -9,6 +9,9 @@ class UserRepository extends IUserRepository {
   async findById(id) {
     return await UserModel.findById(id);
   }
+  async findAllUsers(conditions) {
+    return await UserModel.find(conditions).select('-password');
+  }
 
   async create(userData) {
     return await UserModel.create(userData);

@@ -10,7 +10,7 @@ class LoginUser {
     const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
-      throw new Error("Invalid credentials");
+      throw new Error("We found you'r new to here, please signup");
     }
 
     const isMatch = await bcrypt.compare(password, user.password);

@@ -1,5 +1,3 @@
-
-
 class FindUser {
     constructor(userRepository) {
         this.userRepository = userRepository

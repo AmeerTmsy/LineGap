@@ -1,19 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 // import api from "../api/axios";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { serverAPI } from "../services/apis";
+import { useAuth } from "../context/Authcontext";
 
 const Signup = () => {
-  // const { signup } = useAuth();
-  const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  const { authLoading, storeToken, user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate("/");
+    }
+  }, [authLoading, user]);
 
   const validateForm = () => {
     if (!name || !email || !password || !confirmPassword) {
@@ -37,10 +45,10 @@ const Signup = () => {
       const payload = { name, email, password };
       const response = await axios.post(`${serverAPI}/auth/register`, payload);
       console.log("Signup successful:", response);
-      toast.success('Account created successfully!');
-      //   signup({ name, email });
-      //   navigate("/");
-
+      if (response?.status === 201) {
+        toast.success('Account created successfully!');
+        storeToken(response?.data?.token)
+      }
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Something went wrong";
       toast.error(errorMessage);
