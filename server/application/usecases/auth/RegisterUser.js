@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 class RegisterUser {
   constructor(userRepository) {
@@ -20,10 +21,17 @@ class RegisterUser {
       password: hashedPassword,
     });
 
+    const token = jwt.sign(
+      { id: user._id, name: user.name, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
     return {
       id: user._id,
       name: user.name,
       email: user.email,
+      token
     };
   }
 }

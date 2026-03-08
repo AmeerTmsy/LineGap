@@ -1,6 +1,7 @@
 const RegisterUser = require("../../application/usecases/auth/RegisterUser");
 const LoginUser = require("../../application/usecases/auth/LoginUser");
-const { userRepository } = require("../../infrastructure/container")
+const { userRepository } = require("../../infrastructure/container");
+const FindUser = require("../../application/usecases/auth/findUser");
 
 class AuthController {
   async register(req, res) {
@@ -20,6 +21,17 @@ class AuthController {
       res.status(200).json(result);
     } catch (error) {
       res.status(401).json({ message: error.message });
+    }
+  }
+
+  async find(req, res) {
+    try {
+      console.log('reached')
+      const findUser = new FindUser(userRepository);
+      const result = await findUser.execute(req.params)
+      res.status(200).json(result)
+    } catch (error) {
+      res.status(401).json({ message: error.message })
     }
   }
 }

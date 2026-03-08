@@ -6,8 +6,9 @@ const connectDB = require("./infrastructure/config/database");
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173",
-    credentials: true,
+    origin: "*", // Allows every origin
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true, // Keep this if you're using cookies/sessions
   })
 );
 app.use(express.json());
@@ -18,7 +19,7 @@ const { Server } = require("socket.io");
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "*", // Allows every origin for web sockets
     methods: ["GET", "POST"],
   },
 });

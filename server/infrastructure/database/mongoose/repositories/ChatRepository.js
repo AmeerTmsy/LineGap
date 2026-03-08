@@ -16,6 +16,7 @@ class ChatRepository extends IChatRepository {
         })
             .populate("users", "-password")
             .populate("groupAdmin", "-password")
+            .populate("latestMessage")
             .sort({ updatedAt: -1 });
 
         // $in: finds chats where user exists in users array 
