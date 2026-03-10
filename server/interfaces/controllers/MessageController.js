@@ -16,14 +16,9 @@ class MessageController {
         content: req.body.content,
       });
 
-      // console.log("Emitting to users:", String(message.chat.users));
-
-      // Emit to all users in the chat except sender
-      console.log(message)
       message.chat.users.forEach((userId) => {
         const userIdStr = userId.toString();
         if (userIdStr === req.user.id.toString()) return;
-        console.log('usrid,'+userIdStr)
         io.to(userIdStr).emit("new message", message);
       });
       
