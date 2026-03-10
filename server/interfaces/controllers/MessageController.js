@@ -1,11 +1,13 @@
 const GetMessages = require("../../application/usecases/message/GetMessages");
 const SendMessage = require("../../application/usecases/message/SendMessage");
 const { messageRepository, chatRepository } = require("../../infrastructure/container");
-const { io } = require('../../index')
+// const { io } = require('../../index');
+const { getIO } = require("../../infrastructure/socket/socketHandler");
 
 class MessageController {
   async sendMessage(req, res) {
     try {
+      const io = getIO()
       const sendMessage = new SendMessage(messageRepository, chatRepository);
 
       const message = await sendMessage.execute({

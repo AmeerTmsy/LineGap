@@ -58,7 +58,16 @@ const Signup = () => {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-100">
+    <div
+      className="h-screen flex items-center justify-center "
+      style={{
+        backgroundImage: `url("AlluraCity.png")`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'top',
+        backgroundRepeat: 'no-repeat',
+        height: '100vh',
+      }}
+    >
       <Toaster
         position="top-right"
         reverseOrder={false}
@@ -74,7 +83,7 @@ const Signup = () => {
       />
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-md w-96 mx-2"
+        className=" p-8 rounded-2xl shadow-md w-96 mx-2"
       >
         <h2 className="text-2xl font-bold mb-6 text-center">Signup</h2>
 
@@ -83,7 +92,7 @@ const Signup = () => {
           placeholder="Your name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full mb-4 border p-3 rounded-lg"
+          className="w-full mb-4 border border-transparent hover:border-gray-200 focus:outline outline-gray-500 p-3 pe-10 rounded-lg transition-all duration-200 ease-in-out"
           required
         />
         <input
@@ -91,7 +100,7 @@ const Signup = () => {
           placeholder="Your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-6 border p-3 rounded-lg"
+          className="w-full mb-4 border border-transparent hover:border-gray-200 focus:outline outline-gray-500 p-3 pe-10 rounded-lg transition-all duration-200 ease-in-out"
           required
         />
         <input
@@ -99,7 +108,7 @@ const Signup = () => {
           placeholder="Your password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-4 border p-3 rounded-lg"
+          className="w-full mb-4 border border-transparent hover:border-gray-200 focus:outline outline-gray-500 p-3 pe-10 rounded-lg transition-all duration-200 ease-in-out"
           required
         />
         <input
@@ -107,11 +116,11 @@ const Signup = () => {
           placeholder="Confirm your password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="w-full mb-4 border p-3 rounded-lg"
+          className="w-full mb-4 border border-transparent hover:border-gray-200 focus:outline outline-gray-500 p-3 pe-10 rounded-lg transition-all duration-200 ease-in-out"
           required
         />
 
-        <button className="w-full bg-purple-600 text-white p-3 rounded-lg">
+        <button className="w-full bg-[#000000b7] hover:bg-black text-white p-3 rounded-lg  transition-all duration-300 ease-in-out">
           Create Account
         </button>
 

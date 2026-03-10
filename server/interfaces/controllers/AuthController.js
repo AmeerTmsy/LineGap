@@ -39,7 +39,8 @@ class AuthController {
   async findAll(req, res) {
     try {
       const findUsers = new FindAllUsers(userRepository);
-      const result = await findUsers.execute();
+      const conditions = { _id: { $ne: req.user.id } }
+      const result = await findUsers.execute(conditions);
       res.status(200).json(result)
     } catch (error) {
       res.status(401).json({ message: error.error.message})

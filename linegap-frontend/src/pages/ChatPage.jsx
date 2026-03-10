@@ -6,25 +6,26 @@ import { serverAPI, serverAPISocket } from "../services/apis";
 import SideBarProfile from "../components/SideBarProfile";
 import ChatPartnerProfile from "../components/ChatPartnerProfile";
 import SidebarChats from "../components/SidebarChats";
+import { useChat } from "../context/ChatContext";
+import { getTime } from "../util/utilities";
+import { useAvailableProfiles } from "../context/AvailableProfileContext";
 
 function ChatPage() {
-  const [userIndex, setUserIndex] = useState(0);
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [typingUser, setTypingUser] = useState(null);
-  const [chats, setChats] = useState([]);
-  const [activeChat, setActiveChat] = useState(null);
   const [isShowingSideChats, setIsShowingSideChats] = useState(true);
   const [isShowingChatPartner, setIsShowingChatPartner] = useState(false);
   const [chatPartner, setChatPartner] = useState(null);
   const [isShowingAddNewChat, setIsShowingAddNewChat] = useState(false);
-  const [availableProfiles, setAvailableProfiles] = useState(null)
 
   const { user, userToken, logout } = useAuth();
-  const messagesEndRef = useRef(null);
+  const { chats, activeChat, setActiveChat, updateChatList, updateLatestMessage } = useChat();
+  const { availableProfiles } = useAvailableProfiles();
 
+  const messagesEndRef = useRef(null);
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
   useEffect(() => {
@@ -49,7 +50,9 @@ function ChatPage() {
     };
     const handleStopTyping = () => setIsTyping(false)
     const handleNewMessage = (message) => {
-      console.log("🔥 SOCKET EVENT FIRED FOR USER:", user?.id);
+      // console.log("🔥 SOCKET EVENT FIRED FOR USER:", user?.id);
+      updateLatestMessage(message)
+      // console.log('message: ', message)
       setMessages((prev) => {
         if (!activeChat) return prev;
         if (message.chat._id !== activeChat._id) return prev;
@@ -80,7 +83,7 @@ function ChatPage() {
           `${serverAPI}/auth/user/${id}`,
           { headers: { Authorization: `Bearer ${userToken}` } }
         );
-        console.log('chat parner: ', response)
+        // console.log('chat parner: ', response)
         if (response?.status == 200) {
           setChatPartner(response?.data)
         }
@@ -93,19 +96,6 @@ function ChatPage() {
       fetchChatPartnerData(id)
     }
   }, [activeChat]);
-
-  useEffect(() => {
-    const fetchChats = async () => {
-      const response = await axios.get(
-        `${serverAPI}/chat`,
-        { headers: { Authorization: `Bearer ${userToken}` } }
-      );
-      setChats(response?.data);
-      console.log("Chates: ", response)
-    };
-
-    fetchChats();
-  }, [userToken]);
 
   useEffect(() => {
     if (!activeChat) return;
@@ -130,26 +120,10 @@ function ChatPage() {
       const payload = { chatId: activeChat._id, content: input }
       const headers = { Authorization: `Bearer ${userToken}` }
       const response = await axios.post(`${serverAPI}/message`, payload, { headers });
-      console.log("Message res: ", response)
+      // console.log("Message res: ", response)
       if (response?.status == 201) {
         const newMessage = response?.data
-        setChats(prev => {
-          return prev.map((chat) => {
-            if (chat._id == newMessage.chat._id) {
-              return {
-                ...chat, latestMessage: {
-                  chat: newMessage.chat._id,
-                  content: newMessage.content,
-                  createdAt: newMessage.createdAt,
-                  sender: newMessage.sender._id,
-                  updatedAt: newMessage.updatedAt,
-                  _id: newMessage._id,
-                }
-              }
-            }
-            return chat;
-          })
-        })
+        updateLatestMessage(response?.data)
         setMessages((prev) => [...prev, response?.data]);
         setInput("");
       }
@@ -157,23 +131,6 @@ function ChatPage() {
       console.log(error)
     }
   };
-
-  useEffect(() => {
-    const fetchAvailableProfiles = async () => {
-      try {
-        const url = `${serverAPI}/auth/user`
-        const headers = { Authorization: `Bearer ${userToken}` }
-        const response = await axios.get(url, { headers })
-        // console.log("available profile",response)
-        if(response?.status == 200){
-          setAvailableProfiles(response?.data)
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    }
-    fetchAvailableProfiles()
-  }, [])
 
   return (
     <div className="h-screen flex">
@@ -219,15 +176,23 @@ function ChatPage() {
       </div>
 
       {/* Chat Area */}
-      <div className="w-2/3 flex flex-col p-4 bg-gray-100">
+      <div
+        style={{
+          backgroundImage: `url("chatbg.jpg")`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'bottom',
+          backgroundRepeat: 'no-repeat',
+          height: '100vh',
+        }}
+        className="w-2/3 flex flex-col p-4 bg-gray-100">
         {activeChat ? (
           <>
             {/* Chat Header */}
-            <div className="relative flex justify-between">
-              <h2 className="font-bold mb-4">
+            <div className="relative flex justify-between items-center bg-[#ffffffd9] px-3 py-4 rounded-md ">
+              <h2 className="font-bold">
                 {activeChat.isGroupChat ? activeChat.chatName : 'Chating with ' + activeChat.users.find((u) => u._id !== user.id)?.name}
               </h2>
-              <div className="cursor-pointer text-gray-500 hover:text-black" onClick={() => setIsShowingChatPartner(true)}>
+              <div className="cursor-pointer text-black hover:pe-1 transition-all duration-300 ease-in-out" onClick={() => setIsShowingChatPartner(true)}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" strokeLinecap="round" strokelLinejoin="round" strokeWidth="2" d="M12 17h7M5 12h14M5 7h14" /></svg>
               </div>
               {isTyping && (
@@ -237,14 +202,52 @@ function ChatPage() {
               )}
             </div>
             {/* Messages */}
-            <div className="border flex-1 overflow-y-auto p-2 mb-4 bg-white rounded-lg">
-              {messages.map((msg) => (
-                <div key={msg._id}
-                  className={`mb-2 ${msg.sender._id === user.id ? "text-right" : "text-left"}`}
-                >
-                  <div className="inline-block bg-gray-200 px-3 py-0 rounded-lg">{msg.content}</div>
-                </div>
-              ))}
+            <div className=" flex-1 overflow-y-auto p-2 mb-4 rounded-lg">
+              {messages.map((msg) => {
+                const isMe = msg.sender._id === user.id;
+
+                return (
+                  <div
+                    key={msg._id}
+                    className={`mb-4 flex ${isMe ? "justify-end" : "justify-start"}`}
+                  >
+                    <div className={`relative max-w-xs p-3 border border-gray-400 shadow-sm 
+                     ${isMe
+                        ? "bg-green-100 rounded-xl rounded-tr-none mr-2" // Your message styles
+                        : "bg-white rounded-xl rounded-tl-none ml-2"    // Their message styles
+                      }`}
+                    >
+                      {/* --- Outer Border Triangle --- */}
+                      <div
+                        className={`absolute top-[-1.1px] w-0 h-0 border-t-[12px] border-t-gray-400 
+                          ${isMe
+                            ? "-right-[9px] border-r-[10px] border-r-transparent"
+                            : "-left-[9px] border-l-[10px] border-l-transparent"
+                          }`}
+                      />
+
+                      {/* --- Inner Fill Triangle (Matches BG color) --- */}
+                      <div
+                        className={`absolute top-[0px] w-0 h-0 border-t-[10px] 
+                          ${isMe
+                            ? "border-t-green-50 -right-[8px] border-r-[9px] border-r-transparent"
+                            : "border-t-white -left-[8px] border-l-[9px] border-l-transparent"
+                          }`}
+                      />
+
+                      {/* Content Layout */}
+                      <div className="flex gap-2 items-end">
+                        <p className="text-sm text-gray-800 leading-relaxed">
+                          {msg.content}
+                        </p>
+                        <span className="text-[10px] text-gray-400 uppercase whitespace-nowrap mb-[-2px]">
+                          {getTime(msg.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
               <div ref={messagesEndRef} />
             </div>
 
@@ -259,7 +262,8 @@ function ChatPage() {
               }
             }} className="flex">
               <input
-                className="flex-1 border border-gray-400 px-4 py-1 rounded-full"
+                className="flex-1 border border-gray-400 px-4 py-2 rounded-full"
+                placeholder="Send your message..."
                 value={input}
                 onChange={(e) => {
                   setInput(e.target.value);
