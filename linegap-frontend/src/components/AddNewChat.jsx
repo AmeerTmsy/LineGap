@@ -3,12 +3,13 @@ import React, { useEffect, useRef } from 'react'
 import { serverAPI } from '../services/apis';
 import { useAuth } from '../context/Authcontext';
 import toast, { Toaster } from 'react-hot-toast';
+import { useChat } from '../context/ChatContext';
 
 function AddNewChat({ isOpen, onClose, availableProfiles }) {
     const panelRef = useRef();
     const { userToken } = useAuth();
 
-    // console.log('availableProfiles: ', availableProfiles)
+    const { updateChatList } = useChat();
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -22,9 +23,10 @@ function AddNewChat({ isOpen, onClose, availableProfiles }) {
         try {
             const url = `${serverAPI}/chat`
             const headers = { Authorization: `Bearer ${userToken}` }
-            const response = await axios.post(url, {userId: profile._id} ,{headers})
+            const response = await axios.post(url, { userId: profile._id }, { headers })
             console.log('adding new chat:', response)
-            if(response?.status == 200){
+            if (response?.status == 200) {
+                updateChatList(response?.data)
                 onClose()
                 toast.success('Chat created with: ', profile.name)
             }
@@ -46,7 +48,7 @@ function AddNewChat({ isOpen, onClose, availableProfiles }) {
 
             <div className="py-2 space-y-0 overflow-y-auto h-[calc(100%-140px)]">
                 {availableProfiles?.map((profile) => (
-                    <div key={profile._id} onClick={()=>handleCreateChat(profile)} className='py-1 px-2 rounded-md hover:bg-gray-100 transition-colors duration-300 ease-in-out flex justify-between items-center group cursor-pointer'>
+                    <div key={profile._id} onClick={() => handleCreateChat(profile)} className='py-1 px-2 rounded-md hover:bg-gray-100 transition-colors duration-300 ease-in-out flex justify-between items-center group cursor-pointer'>
                         <div>
                             <p>{profile?.name}</p>
                             <p className="text-sm text-gray-500">{profile?.email}</p>

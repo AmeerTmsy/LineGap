@@ -52,7 +52,6 @@ function ChatPage() {
     const handleNewMessage = (message) => {
       // console.log("🔥 SOCKET EVENT FIRED FOR USER:", user?.id);
       updateLatestMessage(message)
-      // console.log('message: ', message)
       setMessages((prev) => {
         if (!activeChat) return prev;
         if (message.chat._id !== activeChat._id) return prev;
