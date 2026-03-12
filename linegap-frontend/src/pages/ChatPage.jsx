@@ -9,6 +9,7 @@ import SidebarChats from "../components/SidebarChats";
 import { useChat } from "../context/ChatContext";
 import { getTime } from "../util/utilities";
 import { useAvailableProfiles } from "../context/AvailableProfileContext";
+import { Toaster } from "react-hot-toast";
 
 function ChatPage() {
   const [socket, setSocket] = useState(null);
@@ -20,6 +21,8 @@ function ChatPage() {
   const [isShowingChatPartner, setIsShowingChatPartner] = useState(false);
   const [chatPartner, setChatPartner] = useState(null);
   const [isShowingAddNewChat, setIsShowingAddNewChat] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [showSideBar, setShowSidebar] = useState(true)
 
   const { user, userToken, logout } = useAuth();
   const { chats, activeChat, setActiveChat, updateChatList, updateLatestMessage } = useChat();
@@ -27,6 +30,21 @@ function ChatPage() {
 
   const messagesEndRef = useRef(null);
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+
+
+  useEffect(() => {
+  const handleResize = () => setWindowWidth(window.innerWidth);
+  window.addEventListener('resize', handleResize);
+
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
+
+
+  useEffect(() => {
+    console.log('wndow: ', windowWidth)
+  }, [windowWidth]);
+
+
 
   useEffect(() => {
     if (!user?.id) return;
@@ -134,7 +152,20 @@ function ChatPage() {
   return (
     <div className="h-screen flex">
       {/* Sidebar */}
-      <div className="w-1/3 h-full border-r p-4 flex flex-col overflow-hidden shadow-lg shadow-black z-10">
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        toastOptions={{
+          className: '',
+          style: {
+            fontSize: '13px',
+            fontWeight: '300',
+            padding: '5px 16px',
+            borderRadius: '8px',
+          },
+        }}
+      />
+      <div style={{ ...((windowWidth < 750 && showSideBar) ? { width: '100%'} : (windowWidth < 750 && !showSideBar) ? { width: '0%', padding: 0}  : {}) }} className="w-1/3 h-full border-r p-4 flex flex-col overflow-hidden shadow-lg shadow-black z-10">
         <div className={`flex-shrink-0 flex justify-between gap-2 items-center mb-0 pb-2 border-b`}>
           <div className="flex gap-2 items-center">
             <span onClick={() => {
@@ -169,6 +200,7 @@ function ChatPage() {
             setIsShowingAddNewChat={setIsShowingAddNewChat}
             isOpen={isShowingAddNewChat}
             availableProfiles={availableProfiles}
+            setShowSidebar={setShowSidebar}
           />
           <SideBarProfile user={user} logout={logout} isShowingSideChats={isShowingSideChats} />
         </div>
@@ -182,13 +214,19 @@ function ChatPage() {
           backgroundPosition: 'bottom',
           backgroundRepeat: 'no-repeat',
           height: '100vh',
+          ...((windowWidth < 750 && showSideBar) ? { width: '0', padding: 0} : (windowWidth < 750 && !showSideBar) ? { width: '100%', padding: 0}  : {}),
         }}
         className="w-2/3 flex flex-col p-4 bg-gray-100">
         {activeChat ? (
           <>
             {/* Chat Header */}
             <div className="relative flex justify-between items-center bg-[#ffffffd9] px-3 py-4 rounded-md ">
-              <h2 className="font-bold">
+              <h2 className="font-bold flex justify-center">
+                {windowWidth < 750 && <span onClick={()=> {
+                  setShowSidebar(true);
+                  setActiveChat(null);
+                }} className="me-3 inline-block"><svg className="transform hover:-translate-x-1 transition-all duration-200 ease-in-out" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M7.94 13.06a1.5 1.5 0 0 1 0-2.12l5.656-5.658a1.5 1.5 0 1 1 2.121 2.122L11.122 12l4.596 4.596a1.5 1.5 0 1 1-2.12 2.122l-5.66-5.658Z"/></g></svg>
+                </span>}
                 {activeChat.isGroupChat ? activeChat.chatName : 'Chating with ' + activeChat.users.find((u) => u._id !== user.id)?.name}
               </h2>
               <div className="cursor-pointer text-black hover:pe-1 transition-all duration-300 ease-in-out" onClick={() => setIsShowingChatPartner(true)}>
@@ -259,7 +297,7 @@ function ChatPage() {
                 e.preventDefault();
                 sendMessage();
               }
-            }} className="flex">
+            }} className={`flex ${windowWidth < 750 && 'px-2 pb-2'}`}>
               <input
                 className="flex-1 border border-gray-400 px-4 py-2 rounded-full"
                 placeholder="Send your message..."
@@ -281,7 +319,25 @@ function ChatPage() {
             </form>
           </>
         ) : (
-          <div>Select a chat</div>
+          <div className="w-full flex-1 min-h-0">
+            {(windowWidth > 750 || !showSideBar) && <div className="w-full h-full flex flex-col justify-center items-center">
+              <div className="flex flex-col gap-1 w-56">
+                <div className="group bg-[#e6e6e6c9] hover:bg-[#e6e6e6e2] transition-colors duration-200 ease-in-out rounded-lg flex flex-col justify-center items-center py-3 shadow-2xl border border-[#1f1f1f62]">
+                  <p>Select a chat</p>
+                  <p>You are beautiful</p>
+                  <p className="opacity-0 group-hover:opacity-100 transition-all duration-500 ease-in-out">Not so much</p>
+                </div>
+                <div className="flex justify-evenly gap-1">
+                  <div className="bg-[#e6e6e6c9] hover:bg-[#e6e6e6e2] transition-colors duration-200 ease-in-out flex-1 rounded-lg flex justify-center p-2  shadow-2xl border border-[#1f1f1f62]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 64 64"><circle cx="32" cy="30" r="28" fill="#ffdd67" /><g fill="#ff717f"><ellipse cx="49.9" cy="21.5" opacity="0.8" rx="6.1" ry="8.4" transform="rotate(-75.001 49.952 21.545)" /><ellipse cx="12.3" cy="28.2" opacity="0.8" rx="8.4" ry="6.1" transform="rotate(-34.995 12.269 28.19)" /></g><path fill="#664e27" d="M26.7 18.2c-2.5-4.3-5.3-6.1-7.8-5.6c-2.5.4-4.6 3.1-5.4 8c-.1.5.9 1.2 1.3.6c1.3-2 3.1-3 5.1-3.3c2-.4 4 0 5.9 1.4c.5.3 1.2-.7.9-1.1m19.5-3.5c-2.5-4.2-5.3-6.1-7.8-5.6c-2.5.4-4.6 3.2-5.4 8c-.1.5.9 1.2 1.3.6c1.3-2 3.1-3 5.1-3.3c2-.4 4 0 5.9 1.4c.4.3 1.1-.6.9-1.1m-3.3 11.8c-6.3 6.3-14.3 7.7-22.4 3.9c-1-.5-1.6.7-.8 1.6c2.8 3.2 7.8 5.6 13.4 4.6s9.5-5 11-9c.5-.9-.4-1.8-1.2-1.1" /><path fill="#fff" d="M27.2 46.8s1.8-.6 1.1-3c-.7-2.5-6.9 0-10-1.2c0 0 2.5-.8 1.7-2.9c-.8-1.9-7.6-2.6-14.3 2.6S3.3 59.5 11.6 61c5.8 1 14.6.9 15.7-1.6c.9-2-1.9-2.7-1.9-2.7s3.5 0 3.5-2.7c0-1.6-1.3-1.6-1.3-1.6s2.9-.4 2.9-3.1c.1-2.3-3.3-2.5-3.3-2.5" /><path fill="#cccfd4" d="M28.4 46.9c2.2-1.5.3-5.1-2.4-4.7c-2.3.4-6.3.4-6.3.4s1.3-.5 1-2.2s-2.7-4.2-12.3-.3c-3.6 1.5-5.9 4.5-6.3 8.2c-.4 4 1.4 8.7 4.3 10.8c3.2 2.4 10.7 3.8 17.9 2.4c4.8-.9 4.3-4 2.3-4.5c3.3-.6 3.6-3.4 2-4.2c3.7-1.2 2.7-5.8-.2-5.9M25.8 52c-1.9.2-7 .6-7 .6s3.5.7 7.2.1c3.3-.5 3.1 2.8-1.5 3.4c-2.2.3-5.7.4-5.7.4s3.2.5 4.9.3c4.4-.6 3.9 2.7-.2 3.3c-7.3 1-13.2 0-16.1-2.1c-4.1-3-6.5-13 1.5-16.7c3.6-1.7 9.5-3.2 10.4-1.2c1.2 2.9-4.2 3.2-4.2 3.2s4.4.6 10.7-.1c1.7-.2 3 1.9.9 3.1c-1.8 1.1-7.9 1.5-7.9 1.5s3.3.1 7.9-.3c3.7-.3 4 3.9-.9 4.5" /><path fill="#fff" d="M36.8 46.8s-1.8-.6-1.1-3c.7-2.5 6.9 0 10-1.2c0 0-2.5-.8-1.7-2.9c.8-1.9 7.6-2.6 14.3 2.6s2.3 17.2-5.9 18.6c-5.8 1-14.6.9-15.7-1.6c-.9-2 1.9-2.7 1.9-2.7s-3.5 0-3.5-2.7c0-1.6 1.3-1.6 1.3-1.6s-2.9-.4-2.9-3.1c-.1-2.2 3.3-2.4 3.3-2.4" /><path fill="#cccfd4" d="M35.4 52.7c-1.5.8-1.2 3.6 2 4.2c-2 .5-2.5 3.6 2.3 4.5c7.3 1.4 14.7.1 17.9-2.4c2.8-2.1 4.7-6.8 4.3-10.8c-.4-3.7-2.7-6.7-6.3-8.2c-9.7-3.9-12-1.5-12.3.3c-.3 1.7 1 2.2 1 2.2s-4 0-6.3-.4c-2.7-.5-4.6 3.2-2.4 4.7c-2.9.2-3.9 4.8-.2 5.9m1.9-5.2c4.6.4 7.9.3 7.9.3s-6.1-.4-7.9-1.5c-2.1-1.2-.8-3.3.9-3.1c6.4.8 10.7.1 10.7.1s-5.4-.4-4.2-3.2c.9-2 6.8-.5 10.4 1.2c8 3.8 5.5 13.7 1.5 16.7c-2.8 2.1-8.8 3.2-16.1 2.1c-4.2-.6-4.7-3.9-.2-3.3c1.7.2 4.9-.3 4.9-.3s-3.5-.1-5.7-.4c-4.6-.6-4.8-3.9-1.5-3.4c3.6.5 7.2-.1 7.2-.1s-5.1-.3-7-.6c-4.9-.6-4.6-4.8-.9-4.5" /></svg>
+                  </div>
+                  <div className="bg-[#e6e6e6c9] hover:bg-[#e6e6e6e2] transition-colors duration-200 ease-in-out flex-1 rounded-lg flex justify-center p-2  shadow-2xl border border-[#1f1f1f62]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="18" fill="#ffec12" /><path fill="#664500" d="M18 21c-3.623 0-6.027-.422-9-1c-.679-.131-2 0-2 2c0 4 4.595 9 11 9c6.404 0 11-5 11-9c0-2-1.321-2.132-2-2c-2.973.578-5.377 1-9 1" /><path fill="#fff" d="M9 22s3 1 9 1s9-1 9-1s-2 4-9 4s-9-4-9-4" /><ellipse cx="12" cy="13.5" fill="#664500" rx="2.5" ry="3.5" /><ellipse cx="24" cy="13.5" fill="#664500" rx="2.5" ry="3.5" /></svg>
+                  </div>
+                </div>
+              </div>
+            </div>}
+          </div>
         )}
       </div>
       <ChatPartnerProfile isOpen={isShowingChatPartner} onClose={() => setIsShowingChatPartner(false)} chatPartner={chatPartner} />

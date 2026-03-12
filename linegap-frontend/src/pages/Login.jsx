@@ -38,7 +38,7 @@ const Login = () => {
             const response = await axios.post(`${serverAPI}/auth/login`, payload);
             console.log("Login successful:", response);
             if (response?.status === 200) {
-                toast.success(`Welcome back ${response?.data?.name}`)
+                toast.success(` ${response?.data?.name}, Welcome back`)
                 storeToken(response?.data?.token)
             }
         } catch (error) {
@@ -59,19 +59,6 @@ const Login = () => {
                 height: '100vh',
             }}
         >
-            <Toaster
-                position="top-center"
-                reverseOrder={false}
-                toastOptions={{
-                    className: '',
-                    style: {
-                        fontSize: '13px',
-                        fontWeight: '300',
-                        padding: '5px 16px',
-                        borderRadius: '8px',
-                    },
-                }}
-            />
             <form
                 onSubmit={handleSubmit}
                 className=" p-8 rounded-2xl shadow-md w-96 mx-2"

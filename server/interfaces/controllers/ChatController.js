@@ -1,11 +1,12 @@
 const CreateChat = require("../../application/usecases/chat/CreateChat");
 const GetUserChats = require("../../application/usecases/chat/GetUserChats");
-const { chatRepository } = require("../../infrastructure/container");
+const { chatRepository, trackRepository } = require("../../infrastructure/container");
 
 class ChatController {
     async createChat(req, res) {
         try {
             const createChat = new CreateChat(chatRepository);
+            const updateTrack = new CreateChat(trackRepository);
 
             const chat = await createChat.execute({
                 currentUserId: req.user.id,

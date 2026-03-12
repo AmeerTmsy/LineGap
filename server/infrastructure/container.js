@@ -9,5 +9,5 @@ const messageRepository = new MessageRepository();
 module.exports = {
   userRepository,
   chatRepository,
-  messageRepository
+  messageRepository,
 };

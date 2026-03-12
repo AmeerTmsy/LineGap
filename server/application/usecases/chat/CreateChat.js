@@ -19,7 +19,7 @@ class CreateChat {
     );
 
     if (existingChat) {
-      return existingChat;
+      throw new Error("You Already chave an active chate with this person");
     }
 
     // 2️⃣ Create new chat

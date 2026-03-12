@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useRef } from 'react'
 import { serverAPI } from '../services/apis';
 import { useAuth } from '../context/Authcontext';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { useChat } from '../context/ChatContext';
 
 function AddNewChat({ isOpen, onClose, availableProfiles }) {
@@ -30,8 +30,14 @@ function AddNewChat({ isOpen, onClose, availableProfiles }) {
                 onClose()
                 toast.success('Chat created with: ', profile.name)
             }
+
+            if (response?.status === 400) {
+                console.log("hlloe")
+                toast.error(response.response.data.message)
+            }
         } catch (error) {
             console.log(error)
+            toast.error(error.response.data.message)
         }
     }
 
