@@ -15,7 +15,7 @@ const server = http.createServer(app);
 initSocket(server);
 
 app.use(cors({
-  origin: "*", credentials: true,
+  origin: 'https://line-gap.vercel.app/login', credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
 }));
 
