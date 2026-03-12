@@ -15,7 +15,7 @@ const server = http.createServer(app);
 initSocket(server);
 
 app.use(cors({
-  origin: 'https://line-gap.vercel.app/login', credentials: true,
+  origin: process.env.ENVIRONMENT == 'development' ? 'http://localhost:4000' : 'https://line-gap.vercel.app/login', credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
 }));
 
