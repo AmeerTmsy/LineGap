@@ -44,7 +44,7 @@ class AuthController {
       res.status(200).json(result)
     } catch (error) {
       console.log('this is the error: ', error)
-      res.status(401).json({ message: error.error.message})
+      res.status(500).json({ message: error.message })
     }
   }
 }
