@@ -6,7 +6,7 @@ let io;
 const initSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: "*",
+      origin: process.env.ENVIRONMENT == 'development' ? 'http://localhost:4000' : 'https://line-gap.vercel.app',
       methods: ["GET", "POST"],
     },
   });
