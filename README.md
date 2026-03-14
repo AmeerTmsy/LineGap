@@ -125,6 +125,6 @@ Through this project, I gained practical experience with:
 
 ## 👨‍💻 Author
 
-Ameer Suhail
-MERN Stack Developer
+Ameer Suhail,
+MERN Stack Developer,
 JavaScript lover
