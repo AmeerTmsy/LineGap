@@ -33,11 +33,11 @@ function ChatPage() {
 
 
   useEffect(() => {
-  const handleResize = () => setWindowWidth(window.innerWidth);
-  window.addEventListener('resize', handleResize);
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
 
-  return () => window.removeEventListener('resize', handleResize);
-}, []);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
 
   useEffect(() => {
@@ -69,6 +69,7 @@ function ChatPage() {
     const handleStopTyping = () => setIsTyping(false)
     const handleNewMessage = (message) => {
       // console.log("🔥 SOCKET EVENT FIRED FOR USER:", user?.id);
+      new Audio('/sounds/notification-receive.mp3').play();
       updateLatestMessage(message)
       setMessages((prev) => {
         if (!activeChat) return prev;
@@ -136,6 +137,7 @@ function ChatPage() {
       if (!input.trim()) return;
       const payload = { chatId: activeChat._id, content: input }
       const headers = { Authorization: `Bearer ${userToken}` }
+      new Audio('/sounds/notification-send.mp3').play();
       const response = await axios.post(`${serverAPI}/message`, payload, { headers });
       // console.log("Message res: ", response)
       if (response?.status == 201) {
@@ -165,7 +167,7 @@ function ChatPage() {
           },
         }}
       />
-      <div style={{ ...((windowWidth < 750 && showSideBar) ? { width: '100%'} : (windowWidth < 750 && !showSideBar) ? { width: '0%', padding: 0}  : {}) }} className="w-1/3 h-full border-r p-4 flex flex-col overflow-hidden shadow-lg shadow-black z-10">
+      <div style={{ ...((windowWidth < 750 && showSideBar) ? { width: '100%' } : (windowWidth < 750 && !showSideBar) ? { width: '0%', padding: 0 } : {}) }} className="w-1/3 h-full border-r p-4 flex flex-col overflow-hidden shadow-lg shadow-black z-10">
         <div className={`flex-shrink-0 flex justify-between gap-2 items-center mb-0 pb-2 border-b`}>
           <div className="flex gap-2 items-center">
             <span onClick={() => {
@@ -214,7 +216,7 @@ function ChatPage() {
           backgroundPosition: 'bottom',
           backgroundRepeat: 'no-repeat',
           height: '100vh',
-          ...((windowWidth < 750 && showSideBar) ? { width: '0', padding: 0} : (windowWidth < 750 && !showSideBar) ? { width: '100%', padding: 0}  : {}),
+          ...((windowWidth < 750 && showSideBar) ? { width: '0', padding: 0 } : (windowWidth < 750 && !showSideBar) ? { width: '100%', padding: 0 } : {}),
         }}
         className="w-2/3 flex flex-col p-4 bg-gray-100">
         {activeChat ? (
@@ -222,10 +224,10 @@ function ChatPage() {
             {/* Chat Header */}
             <div className="relative flex justify-between items-center bg-[#ffffffd9] px-3 py-4 rounded-md ">
               <h2 className="font-bold flex justify-center">
-                {windowWidth < 750 && <span onClick={()=> {
+                {windowWidth < 750 && <span onClick={() => {
                   setShowSidebar(true);
                   setActiveChat(null);
-                }} className="me-3 inline-block"><svg className="transform hover:-translate-x-1 transition-all duration-200 ease-in-out" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z"/><path fill="currentColor" d="M7.94 13.06a1.5 1.5 0 0 1 0-2.12l5.656-5.658a1.5 1.5 0 1 1 2.121 2.122L11.122 12l4.596 4.596a1.5 1.5 0 1 1-2.12 2.122l-5.66-5.658Z"/></g></svg>
+                }} className="me-3 inline-block"><svg className="transform hover:-translate-x-1 transition-all duration-200 ease-in-out" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" /><path fill="currentColor" d="M7.94 13.06a1.5 1.5 0 0 1 0-2.12l5.656-5.658a1.5 1.5 0 1 1 2.121 2.122L11.122 12l4.596 4.596a1.5 1.5 0 1 1-2.12 2.122l-5.66-5.658Z" /></g></svg>
                 </span>}
                 {activeChat.isGroupChat ? activeChat.chatName : 'Chating with ' + activeChat.users.find((u) => u._id !== user.id)?.name}
               </h2>
