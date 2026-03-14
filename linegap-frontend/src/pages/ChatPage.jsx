@@ -40,9 +40,9 @@ function ChatPage() {
   }, []);
 
 
-  useEffect(() => {
-    console.log('wndow: ', windowWidth)
-  }, [windowWidth]);
+  // useEffect(() => {
+  //   console.log('wndow: ', windowWidth)
+  // }, [windowWidth]);
 
 
 
@@ -227,12 +227,12 @@ function ChatPage() {
                 {windowWidth < 750 && <span onClick={() => {
                   setShowSidebar(true);
                   setActiveChat(null);
-                }} className="me-3 inline-block"><svg className="transform hover:-translate-x-1 transition-all duration-200 ease-in-out" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" /><path fill="currentColor" d="M7.94 13.06a1.5 1.5 0 0 1 0-2.12l5.656-5.658a1.5 1.5 0 1 1 2.121 2.122L11.122 12l4.596 4.596a1.5 1.5 0 1 1-2.12 2.122l-5.66-5.658Z" /></g></svg>
+                }} className="me-3 inline-block"><svg className="transform hover:-translate-x-1 transition-all duration-200 ease-in-out" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" fillRule="evenodd"><path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" /><path fill="currentColor" d="M7.94 13.06a1.5 1.5 0 0 1 0-2.12l5.656-5.658a1.5 1.5 0 1 1 2.121 2.122L11.122 12l4.596 4.596a1.5 1.5 0 1 1-2.12 2.122l-5.66-5.658Z" /></g></svg>
                 </span>}
                 {activeChat.isGroupChat ? activeChat.chatName : 'Chating with ' + activeChat.users.find((u) => u._id !== user.id)?.name}
               </h2>
               <div className="cursor-pointer text-black hover:pe-1 transition-all duration-300 ease-in-out" onClick={() => setIsShowingChatPartner(true)}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" strokeLinecap="round" strokelLinejoin="round" strokeWidth="2" d="M12 17h7M5 12h14M5 7h14" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 17h7M5 12h14M5 7h14" /></svg>
               </div>
               {isTyping && (
                 <div className="text-sm text-gray-500 hover:text-gray-900 mb-2 absolute -bottom-2">
@@ -250,7 +250,7 @@ function ChatPage() {
                     key={msg._id}
                     className={`mb-4 flex ${isMe ? "justify-end" : "justify-start"}`}
                   >
-                    <div className={`relative max-w-xs p-3 border border-gray-400 shadow-sm 
+                    <div className={`relative max-w-xs px-3 py-1 border border-gray-400 shadow-sm 
                      ${isMe
                         ? "bg-green-100 rounded-xl rounded-tr-none mr-2" // Your message styles
                         : "bg-white rounded-xl rounded-tl-none ml-2"    // Their message styles
@@ -269,7 +269,7 @@ function ChatPage() {
                       <div
                         className={`absolute top-[0px] w-0 h-0 border-t-[10px] 
                           ${isMe
-                            ? "border-t-green-50 -right-[8px] border-r-[9px] border-r-transparent"
+                            ? "border-t-green-100 -right-[8px] border-r-[9px] border-r-transparent"
                             : "border-t-white -left-[8px] border-l-[9px] border-l-transparent"
                           }`}
                       />

@@ -36,7 +36,7 @@ function ChatPartnerProfile({ isOpen, onClose, chatPartner }) {
                 </div>
 
                 <div className="p-6 space-y-5 overflow-y-auto h-[calc(100%-140px)]">
-                    <div className='p-4 sm:p-0 shadow-sm sm:shadow-none rounded-2xl sm:rounded-none hidden sm:block'>
+                    <div className='p-4 sm:p-0 shadow-sm sm:shadow-none rounded-2xl sm:rounded-none'>
                         <p>{chatPartner?.name}</p>
                         <p className="text-sm text-gray-500">{chatPartner?.email}</p>
                     </div>
